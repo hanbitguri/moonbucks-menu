@@ -5,8 +5,14 @@ function App(){
     })
 
     $('#espresso-menu-name').addEventListener('keypress',(e)=>{
+        //if(e.key !=='Enter') return 
         if(e.key==='Enter'){
+
             const espressoMenuName = $('#espresso-menu-name').value;
+            if(espressoMenuName==='') {
+                alert('메뉴를 입력해주세요.')
+                return
+            }
             const espressoTemplate = (espressoMenuName) => {
                 return `
                 <li class="menu-list-item d-flex items-center py-2">
@@ -25,8 +31,16 @@ function App(){
                     </button>
                 </li>`;
             };
-            $('#espresso-menu-list').innerHTML = espressoTemplate(espressoMenuName);
+
+                $('#espresso-menu-list').insertAdjacentHTML('beforeend',espressoTemplate(espressoMenuName))
+                $('#espresso-menu-name').value=''
+                let menuCount =  $('#espresso-menu-list').querySelectorAll('li').length
+                
+                
+                $('.menu-count').innerText = `총 ${menuCount}개`
+            
         }
+
     })
     
     
