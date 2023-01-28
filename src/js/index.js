@@ -3,11 +3,8 @@ function App(){
     const addEspressoForm = $('#espresso-menu-form').addEventListener('submit',(e)=>{
         e.preventDefault();
     })
-
-    $('#espresso-menu-name').addEventListener('keypress',(e)=>{
-        //if(e.key !=='Enter') return 
-        if(e.key==='Enter'){
-
+    const addEspressoMenu = () =>{
+      
             const espressoMenuName = $('#espresso-menu-name').value;
             if(espressoMenuName==='') {
                 alert('메뉴를 입력해주세요.')
@@ -39,8 +36,14 @@ function App(){
                 
                 $('.menu-count').innerText = `총 ${menuCount}개`
             
-        }
+        
+    }
 
+    $('#espresso-menu-submit-button').addEventListener('click',addEspressoMenu)
+    $('#espresso-menu-name').addEventListener('keypress',(e)=>{
+        if(e.key==='Enter'){
+            addEspressoMenu();
+        }
     })
     
     
