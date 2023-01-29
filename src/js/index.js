@@ -43,29 +43,28 @@ function App(){
                 </button>
             </li>`;
         }).join('')
-        $('#espresso-menu-list').innerHTML =template;
+        $('#menu-list').innerHTML =template;
         updateMenuCount()
     }
-    $('#espresso-menu-form').addEventListener('submit',(e)=>{
+    $('#menu-form').addEventListener('submit',(e)=>{
         e.preventDefault();
     })
 
-    const addEspressoMenu = () =>{
-            const espressoMenuName = $('#espresso-menu-name').value;
-            this.menu[this.currentCategory].push( {name:espressoMenuName} )
+    const addMenu = () =>{
+            const menuName = $('#menu-name').value;
+            this.menu[this.currentCategory].push( {name:menuName} )
             store.setLocalStorage(this.menu)
             this.render(); 
-            $('#espresso-menu-name').value=''
+            $('#menu-name').value=''
            
-            if(espressoMenuName==='' ) {
+            if(menuName==='' ) {
                 alert('메뉴를 입력해주세요.')
                 return
             }
             
-        
     }
     const updateMenuCount = () =>{
-        let menuCount =  $('#espresso-menu-list').querySelectorAll('li').length
+        let menuCount =  $('#menu-list').querySelectorAll('li').length
         $('.menu-count').innerText = `총 ${menuCount}개`
         console.log(this.menu);
     }
@@ -89,18 +88,18 @@ function App(){
         } 
     }
 
-    $('#espresso-menu-submit-button').addEventListener('click',addEspressoMenu)
-    $('#espresso-menu-name').addEventListener('keypress',(e)=>{
+    $('#menu-submit-button').addEventListener('click',addMenu)
+    $('#menu-name').addEventListener('keypress',(e)=>{
         if(e.key==='Enter'){
-            addEspressoMenu();
+            addMenu();
         }
     })
-    $('#espresso-menu-list').addEventListener('click',(e)=>{
+    $('#menu-list').addEventListener('click',(e)=>{
         if(e.target.innerText==='수정') {
             modifyMenu(e);
         }
     })
-    $('#espresso-menu-list').addEventListener('click',(e)=>{
+    $('#menu-list').addEventListener('click',(e)=>{
         if(e.target.innerText==='삭제') {
            removeMenu(e);
         }
