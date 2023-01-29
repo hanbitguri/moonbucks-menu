@@ -9,6 +9,7 @@ const store = {
     
 }
 function App(){
+    
     this.menu={
         espresso : [],
         frappuccino : [],
@@ -19,7 +20,7 @@ function App(){
     this.currentCategory = 'espresso';
     this.init = () =>{
         if(store.getLocalStorage()) {
-            this.menu[this.currentCategory] = store.getLocalStorage();
+            this.menu = store.getLocalStorage();
             this.render()
         }
     }
@@ -52,8 +53,8 @@ function App(){
     const addEspressoMenu = () =>{
             const espressoMenuName = $('#espresso-menu-name').value;
             this.menu[this.currentCategory].push( {name:espressoMenuName} )
+            store.setLocalStorage(this.menu)
             this.render(); 
-            store.setLocalStorage(this.menu[this.currentCategory])
             $('#espresso-menu-name').value=''
            
             if(espressoMenuName==='' ) {
@@ -66,6 +67,7 @@ function App(){
     const updateMenuCount = () =>{
         let menuCount =  $('#espresso-menu-list').querySelectorAll('li').length
         $('.menu-count').innerText = `총 ${menuCount}개`
+        console.log(this.menu);
     }
     const modifyMenu = (e) =>{
         const menuId = e.target.closest("li").dataset.menuId;
