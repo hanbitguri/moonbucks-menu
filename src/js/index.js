@@ -1,7 +1,7 @@
 const $ = (selector) => document.querySelector(selector)
 const store = {
     setLocalStorage(menu){
-        localStorage.setItem('menu',JSON.stringify(menu))
+        localStorage.setItem(`menu`,JSON.stringify(menu))
     },
     getLocalStorage(){
         return JSON.parse(localStorage.getItem('menu'))
@@ -9,16 +9,22 @@ const store = {
     
 }
 function App(){
-    this.menu=[];
+    this.menu={
+        espresso : [],
+        frappuccino : [],
+        blended : [],
+        teavana : [],
+        desert : [],
+    };
+    this.currentCategory = 'espresso';
     this.init = () =>{
-        if(store.getLocalStorage().length > 0) {
-            this.menu = store.getLocalStorage();
+        if(store.getLocalStorage()) {
+            this.menu[this.currentCategory] = store.getLocalStorage();
             this.render()
         }
-        
     }
     this.render = () => {
-        const template = this.menu.map((item,index)=>{
+        const template = this.menu[this.currentCategory].map((item,index)=>{
             return `
             <li class="menu-list-item d-flex items-center py-2" data-menu-id='${index}'>
                 <span class="w-100 pl-2 menu-name">${item.name}</span>
@@ -45,9 +51,9 @@ function App(){
 
     const addEspressoMenu = () =>{
             const espressoMenuName = $('#espresso-menu-name').value;
-            this.menu.push( {name:espressoMenuName} )
+            this.menu[this.currentCategory].push( {name:espressoMenuName} )
             this.render(); 
-            store.setLocalStorage(this.menu)
+            store.setLocalStorage(this.menu[this.currentCategory])
             $('#espresso-menu-name').value=''
            
             if(espressoMenuName==='' ) {
@@ -67,16 +73,15 @@ function App(){
         const updatedMenuName = prompt('메뉴를 수정하세요.', $menuName.innerText);
         $menuName.innerText = updatedMenuName;
         
-
-        this.menu[menuId].name=updatedMenuName;
+        this.menu[this.currentCategory][menuId].name=updatedMenuName;
         
-        store.setLocalStorage(this.menu)
+        store.setLocalStorage(this.menu[this.currentCategory])
     }
     const removeMenu = (e) =>{
         if(confirm('삭제하시겠습니까?')) {
             const menuId = e.target.closest("li").dataset.menuId;
-            this.menu.splice(menuId,1)
-            store.setLocalStorage(this.menu)
+            this.menu[this.currentCategory].splice(menuId,1)
+            store.setLocalStorage(this.menu[this.currentCategory])
             e.target.closest('li').remove()
             updateMenuCount()
         } 
@@ -96,6 +101,13 @@ function App(){
     $('#espresso-menu-list').addEventListener('click',(e)=>{
         if(e.target.innerText==='삭제') {
            removeMenu(e);
+        }
+    })
+    $('.global-nav').addEventListener('click',(e)=>{
+        const isCategoryButton=e.target.classList.contains('cafe-category-name')
+        if(isCategoryButton) {
+            const categoryName = e.target.dataset.categoryName
+            console.log(this.currentCategory);
         }
     })
     
