@@ -28,7 +28,13 @@ function App(){
         const template = this.menu[this.currentCategory].map((item,index)=>{
             return `
             <li class="menu-list-item d-flex items-center py-2" data-menu-id='${index}'>
-                <span class="w-100 pl-2 menu-name">${item.name}</span>
+                <span class="${this.menu[this.currentCategory][index].isSoldout ? 'sold-out ' : ''}w-100 pl-2 menu-name">${item.name}</span>
+                <button
+                type="button"
+                class="bg-gray-50 text-gray-500 text-sm mr-1 menu-sold-out-button"
+              >
+                품절
+              </button>
                 <button
                   type="button"
                   class="bg-gray-50 text-gray-500 text-sm mr-1 menu-edit-button"
@@ -52,7 +58,7 @@ function App(){
 
     const addMenu = () =>{
             const menuName = $('#menu-name').value;
-            this.menu[this.currentCategory].push( {name:menuName} )
+            this.menu[this.currentCategory].push( {name:menuName,isSoldout:false} )
             store.setLocalStorage(this.menu)
             this.render(); 
             $('#menu-name').value=''
@@ -61,12 +67,13 @@ function App(){
                 alert('메뉴를 입력해주세요.')
                 return
             }
+            console.log(this.menu)
             
     }
     const updateMenuCount = () =>{
         let menuCount =  $('#menu-list').querySelectorAll('li').length
         $('.menu-count').innerText = `총 ${menuCount}개`
-        console.log(this.menu);
+        
     }
     const modifyMenu = (e) =>{
         const menuId = e.target.closest("li").dataset.menuId;
@@ -87,6 +94,13 @@ function App(){
             updateMenuCount()
         } 
     }
+    const soldoutMenu = (e) =>{
+        const menuId = e.target.closest("li").dataset.menuId;
+        this.menu[this.currentCategory][menuId].isSoldout = !this.menu[this.currentCategory][menuId].isSoldout;
+        store.setLocalStorage(this.menu[this.currentCategory])
+        this.render();
+
+    }
 
     $('#menu-submit-button').addEventListener('click',addMenu)
     $('#menu-name').addEventListener('keypress',(e)=>{
@@ -97,13 +111,19 @@ function App(){
     $('#menu-list').addEventListener('click',(e)=>{
         if(e.target.innerText==='수정') {
             modifyMenu(e);
+            return
         }
-    })
-    $('#menu-list').addEventListener('click',(e)=>{
         if(e.target.innerText==='삭제') {
            removeMenu(e);
+           return
         }
+        if(e.target.innerText==='품절') {
+            soldoutMenu(e);
+            return
+         }
+
     })
+
     $('.global-nav').addEventListener('click',(e)=>{
         const isCategoryButton=e.target.classList.contains('cafe-category-name')
         if(isCategoryButton) {
