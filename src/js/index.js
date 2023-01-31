@@ -20,7 +20,15 @@ const MenuApi = {
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify({name})
         })
+    },
+    async updateMenu(name,category,menuId){
+        const response = await fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}`,{
+            method:'PUT',
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({name})
+        })
         
+        return response.json();
     }
 }
 function App(){
@@ -37,10 +45,10 @@ function App(){
         
     }
     this.render = () => {
-        const template = this.menu[this.currentCategory].map((item,index)=>{
+        const template = this.menu[this.currentCategory].map((item)=>{
             return `
-            <li class="menu-list-item d-flex items-center py-2" data-menu-id='${index}'>
-                <span class="${this.menu[this.currentCategory][index].isSoldout ? 'sold-out ' : ''}w-100 pl-2 menu-name">${item.name}</span>
+            <li class="menu-list-item d-flex items-center py-2" data-menu-id='${item.id}'>
+                <span class="${item.soldOut ? 'sold-out ' : ''}w-100 pl-2 menu-name">${item.name}</span>
                 <button
                 type="button"
                 class="bg-gray-50 text-gray-500 text-sm mr-1 menu-sold-out-button"
@@ -89,15 +97,14 @@ function App(){
         $('.menu-count').innerText = `총 ${menuCount}개`
         
     }
-    const modifyMenu = (e) =>{
+    const modifyMenu = async (e) =>{
         const menuId = e.target.closest("li").dataset.menuId;
         const $menuName = e.target.closest('li').querySelector('.menu-name');
         const updatedMenuName = prompt('메뉴를 수정하세요.', $menuName.innerText);
-        $menuName.innerText = updatedMenuName;
+         await MenuApi.updateMenu(updatedMenuName,this.currentCategory,menuId)
+         this.menu[this.currentCategory] = await MenuApi.getCategoryMenu(this.currentCategory)
         
-        this.menu[this.currentCategory][menuId].name=updatedMenuName;
-        
-        store.setLocalStorage(this.menu[this.currentCategory])
+        this.render();
     }
     const removeMenu = (e) =>{
         if(confirm('삭제하시겠습니까?')) {
