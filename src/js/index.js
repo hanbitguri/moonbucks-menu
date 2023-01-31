@@ -8,8 +8,14 @@ const store = {
     },
     
 }
+const BASE_URL = 'http://localhost:3000'
+const MenuApi = {
+    async getCategoryMenu(category){
+        const response = await fetch(`${BASE_URL}/api/category/${category}/menu`)
+        return response.json();
+    }
+}
 function App(){
-    
     this.menu={
         espresso : [],
         frappuccino : [],
@@ -19,10 +25,8 @@ function App(){
     };
     this.currentCategory = 'espresso';
     this.init = () =>{
-        if(store.getLocalStorage()) {
-            this.menu = store.getLocalStorage();
-            this.render()
-        }
+        this.menu[this.currentCategory]= MenuApi.getCategoryMenu(this.currentCategory)
+        
     }
     this.render = () => {
         const template = this.menu[this.currentCategory].map((item,index)=>{
@@ -49,25 +53,31 @@ function App(){
                 </button>
             </li>`;
         }).join('')
-        $('#menu-list').innerHTML =template;
+        $('#menu-list').innerHTML = template;
         updateMenuCount()
     }
     $('#menu-form').addEventListener('submit',(e)=>{
         e.preventDefault();
     })
 
-    const addMenu = () =>{
+    const addMenu = async () =>{
+
             const menuName = $('#menu-name').value;
-            this.menu[this.currentCategory].push( {name:menuName,isSoldout:false} )
-            store.setLocalStorage(this.menu)
-            this.render(); 
-            $('#menu-name').value=''
-           
             if(menuName==='' ) {
                 alert('메뉴를 입력해주세요.')
                 return
             }
-            console.log(this.menu)
+           await fetch(`${BASE_URL}/api/category/${this.currentCategory}/menu`,{
+                method:'POST',
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({name:menuName})
+            })
+            this.menu[this.currentCategory]= await MenuApi.getCategoryMenu(this.currentCategory)
+            
+            this.render(); 
+            $('#menu-name').value=''
+           
+            
             
     }
     const updateMenuCount = () =>{
