@@ -13,6 +13,14 @@ const MenuApi = {
     async getCategoryMenu(category){
         const response = await fetch(`${BASE_URL}/api/category/${category}/menu`)
         return response.json();
+    },
+    async createMenu(name,category){
+        const response = await fetch(`${BASE_URL}/api/category/${category}/menu`,{
+            method:'POST',
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({name})
+        })
+        
     }
 }
 function App(){
@@ -67,11 +75,7 @@ function App(){
                 alert('메뉴를 입력해주세요.')
                 return
             }
-           await fetch(`${BASE_URL}/api/category/${this.currentCategory}/menu`,{
-                method:'POST',
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({name:menuName})
-            })
+            await MenuApi.createMenu(menuName,this.currentCategory)
             this.menu[this.currentCategory]= await MenuApi.getCategoryMenu(this.currentCategory)
             
             this.render(); 
@@ -134,13 +138,13 @@ function App(){
 
     })
 
-    $('.global-nav').addEventListener('click',(e)=>{
+    $('.global-nav').addEventListener('click',async (e)=>{
         const isCategoryButton=e.target.classList.contains('cafe-category-name')
         if(isCategoryButton) {
             const categoryName = e.target.dataset.categoryName
             this.currentCategory = categoryName;
             $('.category-title').innerText = `${e.target.innerText} 메뉴 관리`
-            
+            this.menu[this.currentCategory] = await MenuApi.getCategoryMenu(this.currentCategory)
             this.render()
         }
     })
