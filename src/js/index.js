@@ -27,7 +27,14 @@ const MenuApi = {
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify({name})
         })
-        
+        return response.json();
+    },
+    async soldoutMenu(category,menuId){
+        const response = await fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}/soldout`,{
+            method:'PUT',
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({menuId})
+        })
         return response.json();
     }
 }
@@ -48,7 +55,7 @@ function App(){
         const template = this.menu[this.currentCategory].map((item)=>{
             return `
             <li class="menu-list-item d-flex items-center py-2" data-menu-id='${item.id}'>
-                <span class="${item.soldOut ? 'sold-out ' : ''}w-100 pl-2 menu-name">${item.name}</span>
+                <span class="${item.isSoldOut ? 'sold-out ' : ''}w-100 pl-2 menu-name">${item.name}</span>
                 <button
                 type="button"
                 class="bg-gray-50 text-gray-500 text-sm mr-1 menu-sold-out-button"
@@ -115,10 +122,14 @@ function App(){
             updateMenuCount()
         } 
     }
-    const soldoutMenu = (e) =>{
+    const soldoutMenu = async (e) =>{
         const menuId = e.target.closest("li").dataset.menuId;
-        this.menu[this.currentCategory][menuId].isSoldout = !this.menu[this.currentCategory][menuId].isSoldout;
-        store.setLocalStorage(this.menu[this.currentCategory])
+        //this.menu[this.currentCategory][menuId].isSoldout = !this.menu[this.currentCategory][menuId].isSoldout;
+        //store.setLocalStorage(this.menu[this.currentCategory])
+        const resp = await MenuApi.soldoutMenu(this.currentCategory,menuId)
+        console.log(resp)
+        console.log(this.menu);
+        this.menu[this.currentCategory] = await MenuApi.getCategoryMenu(this.currentCategory)
         this.render();
 
     }
