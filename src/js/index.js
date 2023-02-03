@@ -1,48 +1,6 @@
-const $ = (selector) => document.querySelector(selector)
-const store = {
-    setLocalStorage(menu){
-        localStorage.setItem(`menu`,JSON.stringify(menu))
-    },
-    getLocalStorage(){
-        return JSON.parse(localStorage.getItem('menu'))
-    },
-    
-}
-const BASE_URL = 'http://localhost:3000'
-const MenuApi = {
-    async getCategoryMenu(category){
-        const response = await fetch(`${BASE_URL}/api/category/${category}/menu`)
-        return response.json();
-    },
-    async createMenu(name,category){
-        const response = await fetch(`${BASE_URL}/api/category/${category}/menu`,{
-            method:'POST',
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({name})
-        })
-    },
-    async updateMenu(name,category,menuId){
-        const response = await fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}`,{
-            method:'PUT',
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({name})
-        })
-        return response.json();
-    },
-    async soldoutMenu(category,menuId){
-        const response = await fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}/soldout`,{
-            method:'PUT',
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({menuId})
-        })
-        return response.json();
-    },
-    async removeMenu(category,menuId){
-        fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}`,{
-            method:'DELETE'
-        })
-    }
-}
+import MenuApi from "./api/api.js";
+import $ from "./utils/func.js";
+
 function App(){
     this.menu={
         espresso : [],
@@ -56,7 +14,8 @@ function App(){
         this.menu[this.currentCategory]= MenuApi.getCategoryMenu(this.currentCategory)
         
     }
-    this.render = () => {
+    this.render = async () => {
+        this.menu[this.currentCategory] = await MenuApi.getCategoryMenu(this.currentCategory)
         const template = this.menu[this.currentCategory].map((item)=>{
             return `
             <li class="menu-list-item d-flex items-center py-2" data-menu-id='${item.id}'>
@@ -95,9 +54,7 @@ function App(){
                 alert('메뉴를 입력해주세요.')
                 return
             }
-            await MenuApi.createMenu(menuName,this.currentCategory)
-            this.menu[this.currentCategory]= await MenuApi.getCategoryMenu(this.currentCategory)
-            
+            await MenuApi.createMenu(menuName,this.currentCategory) 
             this.render(); 
             $('#menu-name').value=''
            
@@ -113,30 +70,20 @@ function App(){
         const menuId = e.target.closest("li").dataset.menuId;
         const $menuName = e.target.closest('li').querySelector('.menu-name');
         const updatedMenuName = prompt('메뉴를 수정하세요.', $menuName.innerText);
-         await MenuApi.updateMenu(updatedMenuName,this.currentCategory,menuId)
-         this.menu[this.currentCategory] = await MenuApi.getCategoryMenu(this.currentCategory)
-        
+        await MenuApi.updateMenu(updatedMenuName,this.currentCategory,menuId)
         this.render();
     }
     const removeMenu = async (e) =>{
         if(confirm('삭제하시겠습니까?')) {
             const menuId = e.target.closest("li").dataset.menuId;
-            
             await MenuApi.removeMenu(this.currentCategory,menuId)
-            console.log(await MenuApi.removeMenu(this.currentCategory,menuId))
-            this.menu[this.currentCategory]= await MenuApi.getCategoryMenu(this.currentCategory)
             this.render();
             updateMenuCount()
         } 
     }
     const soldoutMenu = async (e) =>{
         const menuId = e.target.closest("li").dataset.menuId;
-        //this.menu[this.currentCategory][menuId].isSoldout = !this.menu[this.currentCategory][menuId].isSoldout;
-        //store.setLocalStorage(this.menu[this.currentCategory])
-        const resp = await MenuApi.soldoutMenu(this.currentCategory,menuId)
-        console.log(resp)
-        console.log(this.menu);
-        this.menu[this.currentCategory] = await MenuApi.getCategoryMenu(this.currentCategory)
+        await MenuApi.soldoutMenu(this.currentCategory,menuId)
         this.render();
 
     }
