@@ -12,7 +12,7 @@ function App(){
     this.currentCategory = 'espresso';
     this.init = () =>{
         this.menu[this.currentCategory]= MenuApi.getCategoryMenu(this.currentCategory)
-        
+        this.render()
     }
     this.render = async () => {
         this.menu[this.currentCategory] = await MenuApi.getCategoryMenu(this.currentCategory)
@@ -46,7 +46,16 @@ function App(){
     $('#menu-form').addEventListener('submit',(e)=>{
         e.preventDefault();
     })
-
+    const changeCategory = (e) =>{
+        const isCategoryButton=e.target.classList.contains('cafe-category-name')
+        if(isCategoryButton) {
+            const categoryName = e.target.dataset.categoryName
+            this.currentCategory = categoryName;
+            $('.category-title').innerText = `${e.target.innerText} 메뉴 관리`
+            
+            this.render()
+        }
+    }
     const addMenu = async () =>{
 
             const menuName = $('#menu-name').value;
@@ -54,6 +63,13 @@ function App(){
                 alert('메뉴를 입력해주세요.')
                 return
             }
+            
+            const duplicated = this.menu[this.currentCategory].find((item)=>{
+                return item.name === $('#menu-name').value;
+            })
+            if(duplicated) alert('중복 값 입니다.')
+            
+
             await MenuApi.createMenu(menuName,this.currentCategory) 
             this.render(); 
             $('#menu-name').value=''
@@ -110,16 +126,9 @@ function App(){
 
     })
 
-    $('.global-nav').addEventListener('click',async (e)=>{
-        const isCategoryButton=e.target.classList.contains('cafe-category-name')
-        if(isCategoryButton) {
-            const categoryName = e.target.dataset.categoryName
-            this.currentCategory = categoryName;
-            $('.category-title').innerText = `${e.target.innerText} 메뉴 관리`
-            this.menu[this.currentCategory] = await MenuApi.getCategoryMenu(this.currentCategory)
-            this.render()
-        }
-    })
+    $('.global-nav').addEventListener('click', changeCategory)
+
+   
     
 }
 const app = new App();
