@@ -36,6 +36,11 @@ const MenuApi = {
             body:JSON.stringify({menuId})
         })
         return response.json();
+    },
+    async removeMenu(category,menuId){
+        fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}`,{
+            method:'DELETE'
+        })
     }
 }
 function App(){
@@ -113,12 +118,14 @@ function App(){
         
         this.render();
     }
-    const removeMenu = (e) =>{
+    const removeMenu = async (e) =>{
         if(confirm('삭제하시겠습니까?')) {
             const menuId = e.target.closest("li").dataset.menuId;
-            this.menu[this.currentCategory].splice(menuId,1)
-            store.setLocalStorage(this.menu[this.currentCategory])
-            e.target.closest('li').remove()
+            
+            await MenuApi.removeMenu(this.currentCategory,menuId)
+            console.log(await MenuApi.removeMenu(this.currentCategory,menuId))
+            this.menu[this.currentCategory]= await MenuApi.getCategoryMenu(this.currentCategory)
+            this.render();
             updateMenuCount()
         } 
     }
