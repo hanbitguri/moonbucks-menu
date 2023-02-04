@@ -1,36 +1,57 @@
 const BASE_URL = 'http://localhost:3000'
+const HTTP_OPTIONS = {
+    POST(data){
+        return {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(data)
+        }
+    },
+    PUT(data){
+        return {
+            method:"PUT",
+            headers:{"Content-Type":"application/json"},
+            body:data ? JSON.stringify(data) : null
+        }
+    },
+    DELETE(data){
+        return{
+            method:"DELETE",
+        }
+    }
+}
+const dataFetch = async (url,option) =>{
+    const response = await fetch(url,option)
+    if(!response.ok){
+        alert('에러가 발생했습니다.')
+    
+    }
+    return response.json();
+}
+const fetchWithOutData=async(url,option)=>{
+    await fetch(url,option)
+}
 const MenuApi = {
     async getCategoryMenu(category){
-        const response = await fetch(`${BASE_URL}/api/category/${category}/menu`)
-        return response.json();
+        return dataFetch((`${BASE_URL}/api/category/${category}/menu`))
     },
     async createMenu(name,category){
-        const response = await fetch(`${BASE_URL}/api/category/${category}/menu`,{
-            method:'POST',
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({name})
-        })
+       
+        
+        dataFetch(`${BASE_URL}/api/category/${category}/menu`,HTTP_OPTIONS.POST({name}))
     },
     async updateMenu(name,category,menuId){
-        const response = await fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}`,{
-            method:'PUT',
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({name})
-        })
-        return response.json();
+       
+       return dataFetch(`${BASE_URL}/api/category/${category}/menu/${menuId}`,HTTP_OPTIONS.PUT({name}))
+        
     },
     async soldoutMenu(category,menuId){
-        const response = await fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}/soldout`,{
-            method:'PUT',
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({menuId})
-        })
-        return response.json();
+       
+        return dataFetch(`${BASE_URL}/api/category/${category}/menu/${menuId}/soldout`,HTTP_OPTIONS.PUT())
     },
     async removeMenu(category,menuId){
-        fetch(`${BASE_URL}/api/category/${category}/menu/${menuId}`,{
-            method:'DELETE'
-        })
+
+       return fetchWithOutData(`${BASE_URL}/api/category/${category}/menu/${menuId}`,HTTP_OPTIONS.DELETE())
     }
 }
 export default MenuApi;
